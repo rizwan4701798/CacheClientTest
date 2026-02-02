@@ -2,6 +2,7 @@ using System.Diagnostics;
 using TestApp.Helpers;
 using TestApp.Models;
 using CacheClient;
+using TestApp.Constants;
 
 namespace TestApp.Modules;
 
@@ -12,11 +13,11 @@ public static class ExpirationTests
         var cache = state.CurrentClient;
         Console.WriteLine();
         ConsoleHelper.PrintDivider('-');
-        ConsoleHelper.PrintCentered("EXPIRATION TESTS", ConsoleColor.Magenta);
+        ConsoleHelper.PrintCentered(ClientTestConstants.ExpirationHeader, ConsoleColor.Magenta);
         ConsoleHelper.PrintDivider('-');
         Console.WriteLine();
 
-        ConsoleHelper.PrintInfo("This test will add items with different expiration times and verify they expire correctly.");
+        ConsoleHelper.PrintInfo(ClientTestConstants.ExpTestInfo);
         Console.WriteLine();
 
         var expirations = new[] { 3, 5, 10 };
@@ -36,12 +37,12 @@ public static class ExpirationTests
             };
 
             cache.Add(key, product, exp);
-            ConsoleHelper.PrintInfo($"Added '{key}' with {exp}s expiration");
+            ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.ExpAdded, key, exp));
         }
 
         Console.WriteLine();
-        ConsoleHelper.PrintInfo("Monitoring expiration...");
-        ConsoleHelper.PrintInfo("Press any key to stop monitoring.\n");
+        ConsoleHelper.PrintInfo(ClientTestConstants.MonitoringExp);
+        ConsoleHelper.PrintInfo(ClientTestConstants.StopMonitoring);
 
         var stopwatch = Stopwatch.StartNew();
         var allExpired = false;
@@ -62,6 +63,6 @@ public static class ExpirationTests
             Console.ReadKey(true);
 
         Console.WriteLine();
-        ConsoleHelper.PrintSuccess($"Expiration test completed in {stopwatch.Elapsed:mm\\:ss}");
+        ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.ExpCompleted, stopwatch.Elapsed));
     }
 }

@@ -1,5 +1,6 @@
 using TestApp.Helpers;
 using CacheClient;
+using TestApp.Constants;
 
 namespace TestApp.Modules;
 
@@ -14,47 +15,47 @@ public static class MultiClientManager
         {
             Console.WriteLine();
             ConsoleHelper.PrintDivider('-');
-            ConsoleHelper.PrintCentered($"MULTI-CLIENT MANAGER (Current: {state.CurrentClientName})", ConsoleColor.Magenta);
+            ConsoleHelper.PrintCentered($"{ClientTestConstants.MultiClientHeader} (Current: {state.CurrentClientName})", ConsoleColor.Magenta);
             ConsoleHelper.PrintDivider('-');
             Console.WriteLine();
-            ConsoleHelper.PrintMenuItem("1", "Create New Client");
-            ConsoleHelper.PrintMenuItem("2", "Switch Current Client");
-            ConsoleHelper.PrintMenuItem("3", "List Active Clients");
-            ConsoleHelper.PrintMenuItem("4", "Broadcast Message");
-            ConsoleHelper.PrintMenuItem("5", "Bulk Create Clients");
-            ConsoleHelper.PrintMenuItem("6", "Bulk Add Operation");
-            ConsoleHelper.PrintMenuItem("B", "Back to Main Menu");
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option1, ClientTestConstants.DescCreateClient);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option2, ClientTestConstants.DescSwitchClient);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescListClients);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescBroadcast);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option5, ClientTestConstants.DescBulkCreate);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option6, ClientTestConstants.DescBulkAdd);
+            ConsoleHelper.PrintMenuItem(ClientTestConstants.OptionB, ClientTestConstants.DescBack);
             Console.WriteLine();
 
-            var choice = ConsoleHelper.ReadLine("Select option");
+            var choice = ConsoleHelper.ReadLine(ClientTestConstants.PromptSelectOption);
 
             try
             {
                 switch (choice?.ToUpperInvariant())
                 {
-                    case "1": CreateNewClient(); break;
-                    case "2": SwitchClient(); break;
-                    case "3": ListClients(); break;
-                    case "4": BroadcastMessage(); break;
-                    case "5": BulkCreateClients(); break;
-                    case "6": BulkAddOperation(); break;
-                    case "B": return;
-                    default: ConsoleHelper.PrintWarning("Invalid choice."); break;
+                    case ClientTestConstants.Option1: CreateNewClient(); break;
+                    case ClientTestConstants.Option2: SwitchClient(); break;
+                    case ClientTestConstants.Option3: ListClients(); break;
+                    case ClientTestConstants.Option4: BroadcastMessage(); break;
+                    case ClientTestConstants.Option5: BulkCreateClients(); break;
+                    case ClientTestConstants.Option6: BulkAddOperation(); break;
+                    case ClientTestConstants.OptionB: return;
+                    default: ConsoleHelper.PrintWarning(ClientTestConstants.InvalidChoice); break;
                 }
             }
             catch (Exception ex)
             {
-                ConsoleHelper.PrintError($"Error: {ex.Message}");
+                ConsoleHelper.PrintError(string.Format(ClientTestConstants.ErrorPrefix, ex.Message));
             }
         }
     }
 
     private static void CreateNewClient()
     {
-        var name = ConsoleHelper.ReadLine("Enter unique client name");
+        var name = ConsoleHelper.ReadLine(ClientTestConstants.PromptClientName);
         if (string.IsNullOrWhiteSpace(name))
         {
-            ConsoleHelper.PrintWarning("Name cannot be empty.");
+            ConsoleHelper.PrintWarning(ClientTestConstants.PromptNameEmpty);
             return;
         }
 
@@ -65,7 +66,7 @@ public static class MultiClientManager
     {
         if (_state!.Clients.ContainsKey(name))
         {
-            ConsoleHelper.PrintWarning($"Client '{name}' already exists.");
+            ConsoleHelper.PrintWarning(string.Format(ClientTestConstants.PromptClientExists, name));
             return;
         }
 
@@ -73,57 +74,57 @@ public static class MultiClientManager
         {
             var options = new CacheClientOptions
             {
-                Host = "localhost",
-                Port = 5050,
-                TimeoutMilliseconds = 5000
+                Host = ClientTestConstants.Localhost,
+                Port = ClientTestConstants.DefaultPort,
+                TimeoutMilliseconds = ClientTestConstants.DefaultTimeout
             };
 
             var client = new CacheClient.CacheClient(options);
             client.Initialize();
             
             // Auto sub to events for visibility
-            client.ItemAdded += (s, e) => ConsoleHelper.PrintEvent($"ADDED ({name})", e.Key, ConsoleColor.Green);
-            client.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent($"UPDATED ({name})", e.Key, ConsoleColor.Yellow);
-            client.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent($"REMOVED ({name})", e.Key, ConsoleColor.Red);
+            client.ItemAdded += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.ADDED} ({name})", e.Key, ConsoleColor.Green);
+            client.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.UPDATED} ({name})", e.Key, ConsoleColor.Yellow);
+            client.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.REMOVED} ({name})", e.Key, ConsoleColor.Red);
 
             _state.AddClient(name, client);
-            ConsoleHelper.PrintSuccess($"Client '{name}' created and connected.");
+            ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.ClientCreated, name));
         }
         catch (Exception ex)
         {
-            ConsoleHelper.PrintError($"Failed to create client '{name}': {ex.Message}");
+            ConsoleHelper.PrintError(string.Format(ClientTestConstants.ClientCreateFailed, name, ex.Message));
         }
     }
 
     private static void BulkCreateClients()
     {
-        var countStr = ConsoleHelper.ReadLine("Enter number of clients to create");
-        var prefix = ConsoleHelper.ReadLine("Enter name prefix (e.g. 'LoadClient')");
+        var countStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptBulkCount);
+        var prefix = ConsoleHelper.ReadLine(ClientTestConstants.PromptPrefix);
         
         if (!int.TryParse(countStr, out var count) || count <= 0)
         {
-             ConsoleHelper.PrintWarning("Invalid count.");
+             ConsoleHelper.PrintWarning(ClientTestConstants.InvalidCount);
              return;
         }
         
         if (string.IsNullOrWhiteSpace(prefix)) prefix = "Client";
         
-        ConsoleHelper.PrintInfo($"Creating {count} clients...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.BulkCreating, count));
         
         for (int i = 1; i <= count; i++)
         {
             CreateClientInternal($"{prefix}_{i}");
         }
         
-        ConsoleHelper.PrintSuccess("Bulk creation complete.");
+        ConsoleHelper.PrintSuccess(ClientTestConstants.BulkComplete);
     }
 
     private static void BulkAddOperation()
     {
-        var keyPrefix = ConsoleHelper.ReadLine("Enter key prefix (e.g. 'bulk:item')");
+        var keyPrefix = ConsoleHelper.ReadLine(ClientTestConstants.PromptKeyPrefix);
         if (string.IsNullOrWhiteSpace(keyPrefix)) keyPrefix = "bulk:item";
         
-        ConsoleHelper.PrintInfo($"Sending ADD requests from all {_state!.Clients.Count} clients...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.SendingAddRequests, _state!.Clients.Count));
         
         int success = 0;
         int fail = 0;
@@ -138,34 +139,34 @@ public static class MultiClientManager
             }
             catch (Exception ex) 
             {
-                ConsoleHelper.PrintError($"Client {kvp.Key} failed: {ex.Message}");
+                ConsoleHelper.PrintError(string.Format(ClientTestConstants.ClientFailed, kvp.Key, ex.Message));
                 fail++;
             }
         }
         
-        ConsoleHelper.PrintSuccess($"Bulk Add Completed. Success: {success}, Failed: {fail}");
+        ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.BulkAddComplete, success, fail));
     }
 
     private static void SwitchClient()
     {
         ListClients();
-        var name = ConsoleHelper.ReadLine("Enter client name to use");
+        var name = ConsoleHelper.ReadLine(ClientTestConstants.PromptUseClient);
         
         try
         {
             _state!.SwitchClient(name ?? "");
-            ConsoleHelper.PrintSuccess($"Switched to client '{name}'.");
+            ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.SwitchedToClient, name));
         }
         catch (KeyNotFoundException)
         {
-            ConsoleHelper.PrintWarning("Client not found.");
+            ConsoleHelper.PrintWarning(ClientTestConstants.ClientNotFound);
         }
     }
 
     private static void ListClients()
     {
         Console.WriteLine();
-        ConsoleHelper.PrintInfo("Active Clients:");
+        ConsoleHelper.PrintInfo(ClientTestConstants.ActiveClients);
         foreach (var name in _state!.Clients.Keys)
         {
             var prefix = name == _state.CurrentClientName ? " * " : "   ";
@@ -175,21 +176,21 @@ public static class MultiClientManager
 
     private static void BroadcastMessage()
     {
-        var key = ConsoleHelper.ReadLine("Enter cache key");
-        var message = ConsoleHelper.ReadLine("Enter message");
+        var key = ConsoleHelper.ReadLine(ClientTestConstants.PromptKeySimple);
+        var message = ConsoleHelper.ReadLine(ClientTestConstants.PromptMessage);
 
-        ConsoleHelper.PrintInfo($"Broadcasting using all {_state!.Clients.Count} clients...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.BroadcastInfo, _state!.Clients.Count));
         
         foreach (var kvp in _state.Clients)
         {
             try 
             {
                 kvp.Value.Update(key!, $"{message} (from {kvp.Key})");
-                ConsoleHelper.PrintSuccess($"Client {kvp.Key} sent update.");
+                ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.ClientSentUpdate, kvp.Key));
             }
             catch (Exception ex)
             {
-                ConsoleHelper.PrintWarning($"Client {kvp.Key} failed: {ex.Message}");
+                ConsoleHelper.PrintWarning(string.Format(ClientTestConstants.ClientFailed, kvp.Key, ex.Message));
             }
         }
     }

@@ -1,20 +1,21 @@
 using CacheClient;
+using TestApp.Constants;
 
 namespace TestApp.Helpers;
 
 public class ClientStateManager(ICache initialCache) : IDisposable
 {
-    private readonly Dictionary<string, ICache> _clients = new() { ["Default"] = initialCache };
+    private readonly Dictionary<string, ICache> _clients = new() { [ClientTestConstants.DefaultClientName] = initialCache };
 
     public ICache CurrentClient { get; private set; } = initialCache;
-    public string CurrentClientName { get; private set; } = "Default";
+    public string CurrentClientName { get; private set; } = ClientTestConstants.DefaultClientName;
 
     public IReadOnlyDictionary<string, ICache> Clients => _clients;
 
     public void AddClient(string name, ICache client)
     {
         if (_clients.ContainsKey(name))
-            throw new ArgumentException($"Client {name} already exists.");
+            throw new ArgumentException(string.Format(ClientTestConstants.PromptClientExists, name));
             
         _clients[name] = client;
     }
@@ -28,7 +29,13 @@ public class ClientStateManager(ICache initialCache) : IDisposable
         }
         else
         {
-            throw new KeyNotFoundException($"Client '{name}' not found");
+            // The constant is "Client not found." which is simple. 
+            // The code had $"Client '{name}' not found". 
+            // I'll stick to the constant message unless I update constant to take arg.
+            // I'll update the constant to just "Client not found" message or use string interpolation if the constant supported it.
+            // My constant ClientNotFound = "Client not found."
+            // So: throw new KeyNotFoundException(ClientTestConstants.ClientNotFound);
+            throw new KeyNotFoundException(ClientTestConstants.ClientNotFound);
         }
     }
 

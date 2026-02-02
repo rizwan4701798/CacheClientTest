@@ -1,6 +1,7 @@
 using CacheClientLib = CacheClient;
 using TestApp.Helpers;
 using TestApp.Modules;
+using TestApp.Constants;
 
 namespace TestApp;
 
@@ -10,14 +11,14 @@ class Program
 
     static void Main(string[] args)
     {
-        Console.Title = "Cache Server Test Application";
+        Console.Title = ClientTestConstants.AppTitle;
         
         ConsoleHelper.PrintHeader();
         
         var initialCache = InitializeCache();
         if (initialCache == null)
         {
-            ConsoleHelper.PrintError("Failed to initialize cache client. Ensure the cache server is running.");
+            ConsoleHelper.PrintError(ClientTestConstants.InitFailed);
             ConsoleHelper.WaitForKey();
             return;
         }
@@ -27,38 +28,38 @@ class Program
         RunMainLoop();
 
         _stateManager.Dispose();
-        ConsoleHelper.PrintSuccess("Cache client disposed. Goodbye!");
+        ConsoleHelper.PrintSuccess(ClientTestConstants.Disposed);
     }
 
     static CacheClientLib.ICache? InitializeCache()
     {
         try
         {
-            ConsoleHelper.PrintInfo("Initializing cache client...");
+            ConsoleHelper.PrintInfo(ClientTestConstants.Initializing);
             
             var options = new CacheClientLib.CacheClientOptions
             {
-                Host = "localhost",
-                Port = 5050,
-                TimeoutMilliseconds = 5000
+                Host = ClientTestConstants.Localhost,
+                Port = ClientTestConstants.DefaultPort,
+                TimeoutMilliseconds = ClientTestConstants.DefaultTimeout
             };
 
             var cache = new CacheClientLib.CacheClient(options);
             cache.Initialize();
 
             // Subscribe to events
-            cache.ItemAdded += (s, e) => ConsoleHelper.PrintEvent("ADDED", e.Key, ConsoleColor.Green);
-            cache.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent("UPDATED", e.Key, ConsoleColor.Yellow);
-            cache.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent("REMOVED", e.Key, ConsoleColor.Red);
-            cache.ItemExpired += (s, e) => ConsoleHelper.PrintEvent("EXPIRED", e.Key, ConsoleColor.Magenta);
-            cache.ItemEvicted += (s, e) => ConsoleHelper.PrintEvent("EVICTED", e.Key, ConsoleColor.DarkYellow);
+            cache.ItemAdded += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.ADDED, e.Key, ConsoleColor.Green);
+            cache.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.UPDATED, e.Key, ConsoleColor.Yellow);
+            cache.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.REMOVED, e.Key, ConsoleColor.Red);
+            cache.ItemExpired += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.EXPIRED, e.Key, ConsoleColor.Magenta);
+            cache.ItemEvicted += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.EVICTED, e.Key, ConsoleColor.DarkYellow);
 
-            ConsoleHelper.PrintSuccess("Cache client initialized successfully!");
+            ConsoleHelper.PrintSuccess(ClientTestConstants.InitSuccess);
             return cache;
         }
         catch (Exception ex)
         {
-            ConsoleHelper.PrintError($"Initialization failed: {ex.Message}");
+            ConsoleHelper.PrintError(string.Format(ClientTestConstants.InitError, ex.Message));
             return null;
         }
     }
@@ -68,7 +69,7 @@ class Program
         while (true)
         {
             ShowMainMenu();
-            var choice = ConsoleHelper.ReadLine("Select option");
+            var choice = ConsoleHelper.ReadLine(ClientTestConstants.PromptSelectOption);
 
             try
             {
@@ -76,20 +77,21 @@ class Program
 
                 switch (choice?.ToUpperInvariant())
                 {
-                    case "1": ManualCrudTests.Run(_stateManager); break;
-                    case "2": ExpirationTests.Run(_stateManager); break;
-                    case "3": EventNotificationTests.Run(_stateManager); break;
-                    case "4": PerformanceBenchmarks.Run(_stateManager); break;
-                    case "5": StressTests.Run(_stateManager); break;
-                    case "6": InteractiveMode.Run(_stateManager); break;
-                    case "7": MultiClientManager.Run(_stateManager); break;
-                    case "Q" or "0": return;
-                    default: ConsoleHelper.PrintWarning("Invalid choice. Please try again."); break;
+                    case ClientTestConstants.Option1: ManualCrudTests.Run(_stateManager); break;
+                    case ClientTestConstants.Option2: ExpirationTests.Run(_stateManager); break;
+                    case ClientTestConstants.Option3: EventNotificationTests.Run(_stateManager); break;
+                    case ClientTestConstants.Option4: PerformanceBenchmarks.Run(_stateManager); break;
+                    case ClientTestConstants.Option5: StressTests.Run(_stateManager); break;
+                    case ClientTestConstants.Option6: InteractiveMode.Run(_stateManager); break;
+                    case ClientTestConstants.Option7: MultiClientManager.Run(_stateManager); break;
+                    case ClientTestConstants.OptionQ: 
+                    case ClientTestConstants.Option0: return;
+                    default: ConsoleHelper.PrintWarning(ClientTestConstants.InvalidChoice); break;
                 }
             }
             catch (Exception ex)
             {
-                ConsoleHelper.PrintError($"Error: {ex.Message}");
+                ConsoleHelper.PrintError(string.Format(ClientTestConstants.ErrorPrefix, ex.Message));
             }
 
             Console.WriteLine();
@@ -100,17 +102,17 @@ class Program
     {
         Console.WriteLine();
         ConsoleHelper.PrintDivider('=');
-        ConsoleHelper.PrintCentered($"MAIN MENU (Current: {_stateManager?.CurrentClientName ?? "Unknown"})", ConsoleColor.Cyan);
+        ConsoleHelper.PrintCentered($"{ClientTestConstants.MainMenuHeader} (Current: {_stateManager?.CurrentClientName ?? ClientTestConstants.UnknownClient})", ConsoleColor.Cyan);
         ConsoleHelper.PrintDivider('=');
         Console.WriteLine();
-        ConsoleHelper.PrintMenuItem("1", "Manual CRUD Operations");
-        ConsoleHelper.PrintMenuItem("2", "Expiration Tests");
-        ConsoleHelper.PrintMenuItem("3", "Event Notification Tests");
-        ConsoleHelper.PrintMenuItem("4", "Performance Benchmarks");
-        ConsoleHelper.PrintMenuItem("5", "Stress Tests");
-        ConsoleHelper.PrintMenuItem("6", "Interactive Mode");
-        ConsoleHelper.PrintMenuItem("7", "Multi-Client Manager");
-        ConsoleHelper.PrintMenuItem("Q", "Quit");
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option1, ClientTestConstants.DescCrud);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option2, ClientTestConstants.DescExpiration);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescEvents);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescPerf);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option5, ClientTestConstants.DescStress);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option6, ClientTestConstants.DescInteractive);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option7, ClientTestConstants.DescMultiClient);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.OptionQ, ClientTestConstants.DescQuit);
         Console.WriteLine();
     }
 }
