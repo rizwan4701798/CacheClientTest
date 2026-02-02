@@ -132,10 +132,6 @@ public static class MultiClientManager
         {
             try
             {
-                // Unique key per client to avoid locking/overwriting issues being the primary test
-                // or same key? The prompt said "send add to cache request to all of those client"
-                // Assuming distinct items usually makes sense for load, but collisions are also valid.
-                // Let's use unique keys to ensure clean Create.
                 var key = $"{keyPrefix}:{kvp.Key}"; 
                 kvp.Value.Add(key, $"Value from {kvp.Key}");
                 success++;
@@ -188,7 +184,6 @@ public static class MultiClientManager
         {
             try 
             {
-                // Each client updates the same key, effectively "chatting" or overwriting
                 kvp.Value.Update(key!, $"{message} (from {kvp.Key})");
                 ConsoleHelper.PrintSuccess($"Client {kvp.Key} sent update.");
             }
