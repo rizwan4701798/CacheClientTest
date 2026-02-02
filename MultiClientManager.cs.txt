@@ -1,0 +1,133 @@
+
+    #region Multi-Client Manager
+
+    static void MultiClientManager()
+    {
+        while (true)
+        {
+            Console.WriteLine();
+            PrintDivider('-');
+            PrintCentered($"MULTI-CLIENT MANAGER (Current: {_currentClientName})", ConsoleColor.Magenta);
+            PrintDivider('-');
+            Console.WriteLine();
+            PrintMenuItem("1", "Create New Client");
+            PrintMenuItem("2", "Switch Current Client");
+            PrintMenuItem("3", "List Active Clients");
+            PrintMenuItem("4", "Broadcast Message");
+            PrintMenuItem("B", "Back to Main Menu");
+            Console.WriteLine();
+
+            var choice = ReadLine("Select option");
+
+            try
+            {
+                switch (choice?.ToUpperInvariant())
+                {
+                    case "1": CreateNewClient(); break;
+                    case "2": SwitchClient(); break;
+                    case "3": ListClients(); break;
+                    case "4": BroadcastMessage(); break;
+                    case "B": return;
+                    default: PrintWarning("Invalid choice."); break;
+                }
+            }
+            catch (Exception ex)
+            {
+                PrintError($"Error: {ex.Message}");
+            }
+        }
+    }
+
+    static void CreateNewClient()
+    {
+        var name = ReadLine("Enter unique client name");
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            PrintWarning("Name cannot be empty.");
+            return;
+        }
+
+        if (_clients.ContainsKey(name))
+        {
+            PrintWarning("Client with this name already exists.");
+            return;
+        }
+
+        try
+        {
+            var options = new CacheClientLib.CacheClientOptions
+            {
+                Host = "localhost",
+                Port = 5050,
+                
+                TimeoutMilliseconds = 5000
+            };
+
+            var client = new CacheClientLib.CacheClient(options);
+            client.Initialize();
+            
+            // Auto sub to events for visibility
+            client.ItemAdded += (s, e) => PrintEvent($"ADDED ({name})", e.Key, ConsoleColor.Green);
+            client.ItemUpdated += (s, e) => PrintEvent($"UPDATED ({name})", e.Key, ConsoleColor.Yellow);
+            client.ItemRemoved += (s, e) => PrintEvent($"REMOVED ({name})", e.Key, ConsoleColor.Red);
+
+            _clients[name] = client;
+            PrintSuccess($"Client '{name}' created and connected.");
+        }
+        catch (Exception ex)
+        {
+            PrintError($"Failed to create client: {ex.Message}");
+        }
+    }
+
+    static void SwitchClient()
+    {
+        ListClients();
+        var name = ReadLine("Enter client name to use");
+        
+        if (_clients.TryGetValue(name ?? "", out var client))
+        {
+            _cache = client;
+            _currentClientName = name!;
+            PrintSuccess($"Switched to client '{name}'.");
+        }
+        else
+        {
+            PrintWarning("Client not found.");
+        }
+    }
+
+    static void ListClients()
+    {
+        Console.WriteLine();
+        PrintInfo("Active Clients:");
+        foreach (var name in _clients.Keys)
+        {
+            var prefix = name == _currentClientName ? " * " : "   ";
+            Console.WriteLine($"{prefix}{name}");
+        }
+    }
+
+    static void BroadcastMessage()
+    {
+        var key = ReadLine("Enter cache key");
+        var message = ReadLine("Enter message");
+
+        PrintInfo($"Broadcasting using all {_clients.Count} clients...");
+        
+        foreach (var kvp in _clients)
+        {
+            try 
+            {
+                // Each client updates the same key, effectively "chatting" or overwriting
+                kvp.Value.Update(key!, $"{message} (from {kvp.Key})");
+                PrintSuccess($"Client {kvp.Key} sent update.");
+            }
+            catch (Exception ex)
+            {
+                PrintWarning($"Client {kvp.Key} failed: {ex.Message}");
+            }
+        }
+    }
+
+    #endregion
