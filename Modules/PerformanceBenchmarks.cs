@@ -2,30 +2,31 @@ using System.Diagnostics;
 using TestApp.Helpers;
 using TestApp.Models;
 using CacheClient;
+using TestApp.Constants;
 
 namespace TestApp.Modules;
 
 public static class PerformanceBenchmarks
 {
-    private static ICache? _cache; // Temporary static for benchmark runner, or pass it down
+    private static ICache? _cache;
 
     public static void Run(ClientStateManager state)
     {
         _cache = state.CurrentClient;
         Console.WriteLine();
         ConsoleHelper.PrintDivider('-');
-        ConsoleHelper.PrintCentered("PERFORMANCE BENCHMARKS", ConsoleColor.Blue);
+        ConsoleHelper.PrintCentered(ClientTestConstants.PerfHeader, ConsoleColor.Blue);
         ConsoleHelper.PrintDivider('-');
         Console.WriteLine();
 
-        var iterationsStr = ConsoleHelper.ReadLine("Enter number of iterations (default: 1000)") ?? "1000";
+        var iterationsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptIterations) ?? "1000";
         if (!int.TryParse(iterationsStr, out var iterations) || iterations <= 0)
             iterations = 1000;
 
         Console.WriteLine();
 
         // Write benchmark
-        ConsoleHelper.PrintInfo($"Running WRITE benchmark ({iterations} iterations)...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunWriteBench, iterations));
         var writeResults = RunBenchmark("WRITE", iterations, i =>
         {
             var key = $"perf:write:{i}";
@@ -34,7 +35,7 @@ public static class PerformanceBenchmarks
         PrintBenchmarkResult("WRITE", writeResults, iterations);
 
         // Read benchmark
-        ConsoleHelper.PrintInfo($"Running READ benchmark ({iterations} iterations)...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunReadBench, iterations));
         var readResults = RunBenchmark("READ", iterations, i =>
         {
             var key = $"perf:write:{i % iterations}";
@@ -43,7 +44,7 @@ public static class PerformanceBenchmarks
         PrintBenchmarkResult("READ", readResults, iterations);
 
         // Update benchmark
-        ConsoleHelper.PrintInfo($"Running UPDATE benchmark ({iterations} iterations)...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunUpdateBench, iterations));
         var updateResults = RunBenchmark("UPDATE", iterations, i =>
         {
             var key = $"perf:write:{i % iterations}";
@@ -52,7 +53,7 @@ public static class PerformanceBenchmarks
         PrintBenchmarkResult("UPDATE", updateResults, iterations);
 
         // Mixed workload
-        ConsoleHelper.PrintInfo($"Running MIXED benchmark ({iterations} iterations)...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunMixedBench, iterations));
         var random = new Random();
         var mixedResults = RunBenchmark("MIXED", iterations, i =>
         {
@@ -68,7 +69,7 @@ public static class PerformanceBenchmarks
         PrintBenchmarkResult("MIXED", mixedResults, iterations);
 
         // Cleanup
-        ConsoleHelper.PrintInfo("Cleaning up benchmark data...");
+        ConsoleHelper.PrintInfo(ClientTestConstants.CleaningBench);
         for (int i = 0; i < iterations; i++)
         {
             try { _cache.Remove($"perf:write:{i}"); } catch { }
@@ -76,7 +77,7 @@ public static class PerformanceBenchmarks
         }
 
         Console.WriteLine();
-        ConsoleHelper.PrintSuccess("Performance benchmarks completed!");
+        ConsoleHelper.PrintSuccess(ClientTestConstants.PerfCompleted);
     }
 
     private static (TimeSpan elapsed, double opsPerSecond) RunBenchmark(string name, int iterations, Action<int> operation)

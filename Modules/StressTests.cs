@@ -2,6 +2,7 @@ using System.Diagnostics;
 using TestApp.Helpers;
 using TestApp.Models;
 using CacheClient;
+using TestApp.Constants;
 
 namespace TestApp.Modules;
 
@@ -14,38 +15,38 @@ public static class StressTests
         _cache = state.CurrentClient;
         Console.WriteLine();
         ConsoleHelper.PrintDivider('-');
-        ConsoleHelper.PrintCentered("STRESS TESTS", ConsoleColor.Red);
+        ConsoleHelper.PrintCentered(ClientTestConstants.StressHeader, ConsoleColor.Red);
         ConsoleHelper.PrintDivider('-');
         Console.WriteLine();
 
-        ConsoleHelper.PrintMenuItem("1", "Concurrent Writers Test");
-        ConsoleHelper.PrintMenuItem("2", "Concurrent Readers Test");
-        ConsoleHelper.PrintMenuItem("3", "Mixed Concurrent Operations");
-        ConsoleHelper.PrintMenuItem("4", "Rapid Fire Test");
-        ConsoleHelper.PrintMenuItem("B", "Back");
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option1, ClientTestConstants.DescStressWriters);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option2, ClientTestConstants.DescStressReaders);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescStressMixed);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescStressRapid);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.OptionB, ClientTestConstants.DescBack);
         Console.WriteLine();
 
-        var choice = ConsoleHelper.ReadLine("Select test");
+        var choice = ConsoleHelper.ReadLine(ClientTestConstants.PromptSelectTest);
 
         switch (choice?.ToUpperInvariant())
         {
-            case "1": ConcurrentWritersTest(); break;
-            case "2": ConcurrentReadersTest(); break;
-            case "3": MixedConcurrentTest(); break;
-            case "4": RapidFireTest(); break;
+            case ClientTestConstants.Option1: ConcurrentWritersTest(); break;
+            case ClientTestConstants.Option2: ConcurrentReadersTest(); break;
+            case ClientTestConstants.Option3: MixedConcurrentTest(); break;
+            case ClientTestConstants.Option4: RapidFireTest(); break;
         }
     }
 
     private static void ConcurrentWritersTest()
     {
-        var threadsStr = ConsoleHelper.ReadLine("Enter number of threads (default: 10)") ?? "10";
-        var opsStr = ConsoleHelper.ReadLine("Enter operations per thread (default: 100)") ?? "100";
+        var threadsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptThreads10) ?? "10";
+        var opsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptOps100) ?? "100";
 
         if (!int.TryParse(threadsStr, out var threads)) threads = 10;
         if (!int.TryParse(opsStr, out var ops)) ops = 100;
 
         Console.WriteLine();
-        ConsoleHelper.PrintInfo($"Running {threads} concurrent writer threads, {ops} ops each...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunWriters, threads, ops));
 
         var errors = 0;
         var completed = 0;
@@ -74,7 +75,7 @@ public static class StressTests
         PrintStressResult(threads * ops, completed, errors, sw.Elapsed);
 
         // Cleanup
-        ConsoleHelper.PrintInfo("Cleaning up...");
+        ConsoleHelper.PrintInfo(ClientTestConstants.CleaningUp);
         Parallel.For(0, threads, t =>
         {
             for (int i = 0; i < ops; i++)
@@ -84,21 +85,21 @@ public static class StressTests
 
     private static void ConcurrentReadersTest()
     {
-        var threadsStr = ConsoleHelper.ReadLine("Enter number of threads (default: 20)") ?? "20";
-        var opsStr = ConsoleHelper.ReadLine("Enter operations per thread (default: 500)") ?? "500";
+        var threadsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptThreads20) ?? "20";
+        var opsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptOps500) ?? "500";
 
         if (!int.TryParse(threadsStr, out var threads)) threads = 20;
         if (!int.TryParse(opsStr, out var ops)) ops = 500;
 
         // Pre-populate
-        ConsoleHelper.PrintInfo("Pre-populating cache with test data...");
+        ConsoleHelper.PrintInfo(ClientTestConstants.PrePopulating);
         for (int i = 0; i < 100; i++)
         {
             try { _cache!.Add($"stress:read:{i}", new Product { Id = i, Name = $"Read Test {i}", Price = i, Description = "Test" }); } catch { }
         }
 
         Console.WriteLine();
-        ConsoleHelper.PrintInfo($"Running {threads} concurrent reader threads, {ops} ops each...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunReaders, threads, ops));
 
         var hits = 0;
         var misses = 0;
@@ -131,7 +132,7 @@ public static class StressTests
         sw.Stop();
 
         PrintStressResult(threads * ops, hits + misses, errors, sw.Elapsed);
-        ConsoleHelper.PrintInfo($"  Cache hits: {hits}, Misses: {misses}");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.StressHitMiss, hits, misses));
 
         // Cleanup
         for (int i = 0; i < 100; i++)
@@ -140,14 +141,14 @@ public static class StressTests
 
     private static void MixedConcurrentTest()
     {
-        var threadsStr = ConsoleHelper.ReadLine("Enter number of threads (default: 15)") ?? "15";
-        var opsStr = ConsoleHelper.ReadLine("Enter operations per thread (default: 200)") ?? "200";
+        var threadsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptThreads15) ?? "15";
+        var opsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptOps200) ?? "200";
 
         if (!int.TryParse(threadsStr, out var threads)) threads = 15;
         if (!int.TryParse(opsStr, out var ops)) ops = 200;
 
         Console.WriteLine();
-        ConsoleHelper.PrintInfo($"Running {threads} concurrent mixed operation threads, {ops} ops each...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunMixed, threads, ops));
 
         var writes = 0;
         var reads = 0;
@@ -197,7 +198,7 @@ public static class StressTests
         sw.Stop();
 
         PrintStressResult(threads * ops, writes + reads + updates + deletes, errors, sw.Elapsed);
-        ConsoleHelper.PrintInfo($"  Writes: {writes}, Reads: {reads}, Updates: {updates}, Deletes: {deletes}");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.StressMixedStats, writes, reads, updates, deletes));
 
         // Cleanup
         for (int i = 0; i < 50; i++)
@@ -206,11 +207,11 @@ public static class StressTests
 
     private static void RapidFireTest()
     {
-        var opsStr = ConsoleHelper.ReadLine("Enter total operations (default: 5000)") ?? "5000";
+        var opsStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptTotalOps) ?? "5000";
         if (!int.TryParse(opsStr, out var ops)) ops = 5000;
 
         Console.WriteLine();
-        ConsoleHelper.PrintInfo($"Running rapid fire test with {ops} sequential operations...");
+        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.RunRapid, ops));
 
         var success = 0;
         var errors = 0;
@@ -244,7 +245,7 @@ public static class StressTests
     private static void PrintStressResult(int total, int completed, int errors, TimeSpan elapsed)
     {
         Console.WriteLine();
-        ConsoleHelper.PrintSuccess($"Stress test completed!");
+        ConsoleHelper.PrintSuccess(ClientTestConstants.StressCompleted);
         ConsoleHelper.PrintInfo($"  Total ops: {total:N0}");
         ConsoleHelper.PrintInfo($"  Completed: {completed:N0}");
         ConsoleHelper.PrintInfo($"  Errors: {errors:N0}");
