@@ -22,8 +22,6 @@ public static class MultiClientManager
             ConsoleHelper.PrintMenuItem(ClientTestConstants.Option2, ClientTestConstants.DescSwitchClient);
             ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescListClients);
             ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescBroadcast);
-            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option5, ClientTestConstants.DescBulkCreate);
-            ConsoleHelper.PrintMenuItem(ClientTestConstants.Option6, ClientTestConstants.DescBulkAdd);
             ConsoleHelper.PrintMenuItem(ClientTestConstants.OptionB, ClientTestConstants.DescBack);
             Console.WriteLine();
 
@@ -37,8 +35,6 @@ public static class MultiClientManager
                     case ClientTestConstants.Option2: SwitchClient(); break;
                     case ClientTestConstants.Option3: ListClients(); break;
                     case ClientTestConstants.Option4: BroadcastMessage(); break;
-                    case ClientTestConstants.Option5: BulkCreateClients(); break;
-                    case ClientTestConstants.Option6: BulkAddOperation(); break;
                     case ClientTestConstants.OptionB: return;
                     default: ConsoleHelper.PrintWarning(ClientTestConstants.InvalidChoice); break;
                 }
@@ -98,56 +94,7 @@ public static class MultiClientManager
         }
     }
 
-    private static void BulkCreateClients()
-    {
-        var countStr = ConsoleHelper.ReadLine(ClientTestConstants.PromptBulkCount);
-        var prefix = ConsoleHelper.ReadLine(ClientTestConstants.PromptPrefix);
-        
-        if (!int.TryParse(countStr, out var count) || count <= 0)
-        {
-             ConsoleHelper.PrintWarning(ClientTestConstants.InvalidCount);
-             return;
-        }
-        
-        if (string.IsNullOrWhiteSpace(prefix)) prefix = "Client";
-        
-        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.BulkCreating, count));
-        
-        for (int i = 1; i <= count; i++)
-        {
-            CreateClientInternal($"{prefix}_{i}");
-        }
-        
-        ConsoleHelper.PrintSuccess(ClientTestConstants.BulkComplete);
-    }
 
-    private static void BulkAddOperation()
-    {
-        var keyPrefix = ConsoleHelper.ReadLine(ClientTestConstants.PromptKeyPrefix);
-        if (string.IsNullOrWhiteSpace(keyPrefix)) keyPrefix = "bulk:item";
-        
-        ConsoleHelper.PrintInfo(string.Format(ClientTestConstants.SendingAddRequests, _state!.Clients.Count));
-        
-        int success = 0;
-        int fail = 0;
-        
-        foreach (var kvp in _state.Clients)
-        {
-            try
-            {
-                var key = $"{keyPrefix}:{kvp.Key}"; 
-                kvp.Value.Add(key, $"Value from {kvp.Key}");
-                success++;
-            }
-            catch (Exception ex) 
-            {
-                ConsoleHelper.PrintError(string.Format(ClientTestConstants.ClientFailed, kvp.Key, ex.Message));
-                fail++;
-            }
-        }
-        
-        ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.BulkAddComplete, success, fail));
-    }
 
     private static void SwitchClient()
     {

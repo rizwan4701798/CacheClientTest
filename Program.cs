@@ -78,11 +78,8 @@ class Program
                 {
                     case ClientTestConstants.Option1: ManualCrudTests.Run(_stateManager); break;
                     case ClientTestConstants.Option2: ExpirationTests.Run(_stateManager); break;
-                    case ClientTestConstants.Option3: EventNotificationTests.Run(_stateManager); break;
-                    case ClientTestConstants.Option4: PerformanceBenchmarks.Run(_stateManager); break;
-                    case ClientTestConstants.Option5: StressTests.Run(_stateManager); break;
-                    case ClientTestConstants.Option6: InteractiveMode.Run(_stateManager); break;
-                    case ClientTestConstants.Option7: MultiClientManager.Run(_stateManager); break;
+                    case ClientTestConstants.Option3: InteractiveMode.Run(_stateManager); break;
+                    case ClientTestConstants.Option4: MultiClientManager.Run(_stateManager); break;
                     case ClientTestConstants.OptionQ: 
                     case ClientTestConstants.Option0: return;
                     default: ConsoleHelper.PrintWarning(ClientTestConstants.InvalidChoice); break;
@@ -106,11 +103,8 @@ class Program
         Console.WriteLine();
         ConsoleHelper.PrintMenuItem(ClientTestConstants.Option1, ClientTestConstants.DescCrud);
         ConsoleHelper.PrintMenuItem(ClientTestConstants.Option2, ClientTestConstants.DescExpiration);
-        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescEvents);
-        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescPerf);
-        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option5, ClientTestConstants.DescStress);
-        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option6, ClientTestConstants.DescInteractive);
-        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option7, ClientTestConstants.DescMultiClient);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option3, ClientTestConstants.DescInteractive);
+        ConsoleHelper.PrintMenuItem(ClientTestConstants.Option4, ClientTestConstants.DescMultiClient);
         ConsoleHelper.PrintMenuItem(ClientTestConstants.OptionQ, ClientTestConstants.DescQuit);
         Console.WriteLine();
     }

@@ -24,9 +24,6 @@ public static class ClientTestConstants
     public const string MainMenuHeader = "MAIN MENU";
     public const string CrudHeader = "CRUD OPERATIONS";
     public const string ExpirationHeader = "EXPIRATION TESTS";
-    public const string EventHeader = "EVENT NOTIFICATION TESTS";
-    public const string PerfHeader = "PERFORMANCE BENCHMARKS";
-    public const string StressHeader = "STRESS TESTS";
     public const string InteractiveHeader = "INTERACTIVE MODE";
     public const string MultiClientHeader = "MULTI-CLIENT MANAGER";
 
@@ -36,8 +33,6 @@ public static class ClientTestConstants
     public const string Option3 = "3";
     public const string Option4 = "4";
     public const string Option5 = "5";
-    public const string Option6 = "6";
-    public const string Option7 = "7";
     public const string OptionQ = "Q";
     public const string Option0 = "0";
     public const string OptionB = "B";
@@ -45,9 +40,6 @@ public static class ClientTestConstants
     // Menu Descriptions
     public const string DescCrud = "Manual CRUD Operations";
     public const string DescExpiration = "Expiration Tests";
-    public const string DescEvents = "Event Notification Tests";
-    public const string DescPerf = "Performance Benchmarks";
-    public const string DescStress = "Stress Tests";
     public const string DescInteractive = "Interactive Mode";
     public const string DescMultiClient = "Multi-Client Manager";
     public const string DescQuit = "Quit";
@@ -65,14 +57,10 @@ public static class ClientTestConstants
     public const string DescSwitchClient = "Switch Current Client";
     public const string DescListClients = "List Active Clients";
     public const string DescBroadcast = "Broadcast Message";
-    public const string DescBulkCreate = "Bulk Create Clients";
-    public const string DescBulkAdd = "Bulk Add Operation";
 
     // Stress Menu
-    public const string DescStressWriters = "Concurrent Writers Test";
-    public const string DescStressReaders = "Concurrent Readers Test";
-    public const string DescStressMixed = "Mixed Concurrent Operations";
-    public const string DescStressRapid = "Rapid Fire Test";
+    // Removed
+
 
     // Prompts
     public const string PromptSelectOption = "Select option";
@@ -125,47 +113,11 @@ public static class ClientTestConstants
     public const string ExpAdded = "Added '{0}' with {1}s expiration";
     public const string ExpCompleted = "Expiration test completed in {0:mm\\:ss}";
     
-    // Event Messages
-    public const string Subscribing = "Subscribing to cache events...";
-    public const string SubscribedAll = "Subscribed to all cache events!";
-    public const string EventWatchInfo = "Now performing operations. Watch for event notifications:";
-    public const string AddingItem = "  -> Adding item...";
-    public const string UpdatingItem = "  -> Updating item...";
-    public const string RemovingItem = "  -> Removing item...";
-    public const string AddingExItem = "  -> Adding item with short expiration (2s)...";
-    public const string WaitingForExp = "  -> Waiting for expiration...";
-    public const string EventTestCompleted = "Event notification test completed!";
-    public const string RealTimeEvents = "Note: Events are displayed in real-time as they occur.";
-    public const string EventTestFailed = "Event test failed: {0}";
     
     // Performance Messages
-    public const string PromptIterations = "Enter number of iterations (default: 1000)";
-    public const string RunWriteBench = "Running WRITE benchmark ({0} iterations)...";
-    public const string RunReadBench = "Running READ benchmark ({0} iterations)...";
-    public const string RunUpdateBench = "Running UPDATE benchmark ({0} iterations)...";
-    public const string RunMixedBench = "Running MIXED benchmark ({0} iterations)...";
-    public const string CleaningBench = "Cleaning up benchmark data...";
-    public const string PerfCompleted = "Performance benchmarks completed!";
-    
+    // Removed
     // Stress Messages
-    public const string PromptThreads10 = "Enter number of threads (default: 10)";
-    public const string PromptThreads15 = "Enter number of threads (default: 15)";
-    public const string PromptThreads20 = "Enter number of threads (default: 20)";
-    public const string PromptOps100 = "Enter operations per thread (default: 100)";
-    public const string PromptOps200 = "Enter operations per thread (default: 200)";
-    public const string PromptOps500 = "Enter operations per thread (default: 500)";
-    public const string PromptTotalOps = "Enter total operations (default: 5000)";
-    public const string PromptSelectTest = "Select test";
-    
-    public const string RunWriters = "Running {0} concurrent writer threads, {1} ops each...";
-    public const string RunReaders = "Running {0} concurrent reader threads, {1} ops each...";
-    public const string PrePopulating = "Pre-populating cache with test data...";
-    public const string RunMixed = "Running {0} concurrent mixed operation threads, {1} ops each...";
-    public const string RunRapid = "Running rapid fire test with {0} sequential operations...";
-    public const string CleaningUp = "Cleaning up...";
-    public const string StressHitMiss = "  Cache hits: {0}, Misses: {1}";
-    public const string StressMixedStats = "  Writes: {0}, Reads: {1}, Updates: {2}, Deletes: {3}";
-    public const string StressCompleted = "Stress test completed!";
+    // Removed
     
     // Interactive
     public const string InteractiveInfo = "Enter commands directly. Type 'help' for available commands, 'exit' to return.";
@@ -198,16 +150,6 @@ public static class ClientTestConstants
     public const string BroadcastInfo = "Broadcasting using all {0} clients...";
     public const string ClientSentUpdate = "Client {0} sent update.";
     public const string ClientFailed = "Client {0} failed: {1}";
-    
-    public const string PromptBulkCount = "Enter number of clients to create";
-    public const string PromptPrefix = "Enter name prefix (e.g. 'LoadClient')";
-    public const string InvalidCount = "Invalid count.";
-    public const string BulkCreating = "Creating {0} clients...";
-    public const string BulkComplete = "Bulk creation complete.";
-    
-    public const string PromptKeyPrefix = "Enter key prefix (e.g. 'bulk:item')";
-    public const string SendingAddRequests = "Sending ADD requests from all {0} clients...";
-    public const string BulkAddComplete = "Bulk Add Completed. Success: {0}, Failed: {1}";
     
     // Events
     public const string ADDED = "ADDED";
