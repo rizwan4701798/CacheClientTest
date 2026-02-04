@@ -41,13 +41,12 @@ class Program
             {
                 Host = ClientTestConstants.Localhost,
                 Port = ClientTestConstants.DefaultPort,
-                TimeoutMilliseconds = ClientTestConstants.DefaultTimeout
+                TimeoutMilliseconds = ClientTestConstants.DefaultTimeout,
             };
 
             var cache = new CacheClientLib.CacheClient(options);
             cache.Initialize();
 
-            // Subscribe to events
             cache.ItemAdded += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.ADDED, e.Key, ConsoleColor.Green);
             cache.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.UPDATED, e.Key, ConsoleColor.Yellow);
             cache.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent(ClientTestConstants.REMOVED, e.Key, ConsoleColor.Red);

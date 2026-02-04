@@ -11,15 +11,6 @@ public static class ConsoleHelper
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Cyan;
-        // Ideally we would put the ASCII art in the constant, but for now let's just use the AppTitle
-        // Or if I copied the whole ASCII art to the constant I should use that.
-        // I didn't put the full ASCII art in the constant file I created above, just "Cache Server Test Application".
-        // Let's stick to the title or keep the ASCII art here if it's too graphical/messy for a constants file?
-        // The user asked to move ALL strings.
-        // Let's assume for now I will rely on the caller to provide the fanciness or I will skip the ASCII art replacement 
-        // to avoid messiness unless I update the Constants file first.
-        // Actually, looking at my Constants file, I only added "AppTitle". 
-        // I will replace valid strings first.
         Console.WriteLine(@"
     ╔═══════════════════════════════════════════════════════════╗
     ║           CACHE SERVER TEST APPLICATION                   ║
