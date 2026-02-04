@@ -85,7 +85,7 @@ public static class InteractiveMode
         Console.WriteLine("  get <key>              - Get a value");
         Console.WriteLine("  update <key> <value>   - Update a value");
         Console.WriteLine("  del <key>              - Delete a key");
-        Console.WriteLine("  subscribe <events>     - Subscribe to events (e.g. ItemAdded ItemRemoved)");
+        Console.WriteLine("  subscribe [events]     - Subscribe to events (empty for all)");
         Console.WriteLine("  unsubscribe [events]   - Unsubscribe from events (empty for all)");
         Console.WriteLine("  exit                   - Return to main menu");
         Console.WriteLine();
@@ -156,19 +156,20 @@ public static class InteractiveMode
 
     private static void InteractiveSubscribe(string args)
     {
-        if (string.IsNullOrWhiteSpace(args))
-        {
-             ConsoleHelper.PrintWarning("Usage: subscribe <event1> <event2> ...");
-             return;
-        }
-
         try
         {
-            var events = args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                             .Select(s => Enum.Parse<CacheEventType>(s, true))
-                             .ToArray();
+            var events = string.IsNullOrWhiteSpace(args)
+                ? Enum.GetValues<CacheEventType>()
+                : args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(s => Enum.Parse<CacheEventType>(s, true))
+                      .ToArray();
+            
             _cache!.Subscribe(events);
-            ConsoleHelper.PrintSuccess("Subscribed to " + string.Join(", ", events));
+            
+            if (string.IsNullOrWhiteSpace(args))
+                 ConsoleHelper.PrintSuccess("Subscribed to ALL events.");
+            else
+                 ConsoleHelper.PrintSuccess("Subscribed to " + string.Join(", ", events));
         }
         catch (Exception)
         {
