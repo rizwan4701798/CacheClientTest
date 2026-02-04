@@ -82,10 +82,12 @@ public static class MultiClientManager
             var client = new CacheClient.CacheClient(options);
             client.Initialize();
             
-            // Auto sub to events for visibility
+        
             client.ItemAdded += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.ADDED} ({name})", e.Key, ConsoleColor.Green);
             client.ItemUpdated += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.UPDATED} ({name})", e.Key, ConsoleColor.Yellow);
             client.ItemRemoved += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.REMOVED} ({name})", e.Key, ConsoleColor.Red);
+            client.ItemExpired += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.EXPIRED} ({name})", e.Key, ConsoleColor.Magenta);
+            client.ItemEvicted += (s, e) => ConsoleHelper.PrintEvent($"{ClientTestConstants.EVICTED} ({name})", e.Key, ConsoleColor.DarkYellow);
 
             _state.AddClient(name, client);
             ConsoleHelper.PrintSuccess(string.Format(ClientTestConstants.ClientCreated, name));

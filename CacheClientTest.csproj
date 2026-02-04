@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CacheClient" Version="1.0.7" />
+    <PackageReference Include="CacheClient" Version="1.0.12" />
   </ItemGroup>
 
 </Project>

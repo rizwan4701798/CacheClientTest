@@ -1,6 +1,7 @@
 using TestApp.Helpers;
 using TestApp.Models;
 using CacheClient;
+using CacheClient.Models;
 using TestApp.Constants;
 
 namespace TestApp.Modules;
@@ -57,6 +58,12 @@ public static class InteractiveMode
                     case "addex":
                         InteractiveAddWithExpiration(args);
                         break;
+                    case "subscribe" or "sub":
+                        InteractiveSubscribe(args);
+                        break;
+                    case "unsubscribe" or "unsub":
+                        InteractiveUnsubscribe(args);
+                        break;
                     default:
                         ConsoleHelper.PrintWarning(string.Format(ClientTestConstants.UnknownCommand, command));
                         break;
@@ -78,6 +85,8 @@ public static class InteractiveMode
         Console.WriteLine("  get <key>              - Get a value");
         Console.WriteLine("  update <key> <value>   - Update a value");
         Console.WriteLine("  del <key>              - Delete a key");
+        Console.WriteLine("  subscribe <events>     - Subscribe to events (e.g. ItemAdded ItemRemoved)");
+        Console.WriteLine("  unsubscribe [events]   - Unsubscribe from events (empty for all)");
         Console.WriteLine("  exit                   - Return to main menu");
         Console.WriteLine();
     }
@@ -143,5 +152,50 @@ public static class InteractiveMode
         }
         _cache!.Remove(args);
         ConsoleHelper.PrintSuccess(ClientTestConstants.OK);
+    }
+
+    private static void InteractiveSubscribe(string args)
+    {
+        if (string.IsNullOrWhiteSpace(args))
+        {
+             ConsoleHelper.PrintWarning("Usage: subscribe <event1> <event2> ...");
+             return;
+        }
+
+        try
+        {
+            var events = args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                             .Select(s => Enum.Parse<CacheEventType>(s, true))
+                             .ToArray();
+            _cache!.Subscribe(events);
+            ConsoleHelper.PrintSuccess("Subscribed to " + string.Join(", ", events));
+        }
+        catch (Exception)
+        {
+             ConsoleHelper.PrintError("Invalid event types.");
+        }
+    }
+
+    private static void InteractiveUnsubscribe(string args)
+    {
+        try
+        {
+            var events = string.IsNullOrWhiteSpace(args) 
+                ? Array.Empty<CacheEventType>()
+                : args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(s => Enum.Parse<CacheEventType>(s, true))
+                      .ToArray();
+            
+             _cache!.Unsubscribe(events);
+             
+             if (events.Length == 0)
+                 ConsoleHelper.PrintSuccess("Unsubscribed from ALL events.");
+             else
+                 ConsoleHelper.PrintSuccess("Unsubscribed from " + string.Join(", ", events));
+        }
+        catch (Exception)
+        {
+             ConsoleHelper.PrintError("Invalid event types.");
+        }
     }
 }
